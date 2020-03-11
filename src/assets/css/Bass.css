@@ -4,6 +4,8 @@ body,
   height: 100%;
   margin: 0;
   padding: 0;
+  min-width: 1366px;
+  font-family:"PingFang SC"
 }
 .el-breadcrumb {
   margin-bottom: 15px;
@@ -15,5 +17,4 @@ body,
 .el-table {
   margin: 20px 0;
   font-size: 12px;
-
 }

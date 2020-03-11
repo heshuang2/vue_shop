@@ -48,7 +48,7 @@
             </el-tooltip>
             <el-tooltip content="分配角色" placement="top" :enterable="false">
               <el-button size="mini" type="warning" icon="el-icon-setting"
-                         circle></el-button>
+                         circle @click="setRole(scope.row)"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -99,6 +99,35 @@
     <el-button type="primary" @click="editUserInfo">确 定</el-button>
   </span>
     </el-dialog>
+    <!--分配角色的对话框-->
+    <el-dialog
+            title="分配角色"
+            :visible.sync="setRoleDialogVisible"
+            width="50%"  @close="setRoleDialogClose">
+      <div>
+        <div class="box-mg">
+          <span class="span-box">当前的用户: </span>
+          <el-input class="color-input" :value="userInfo.username" disabled>
+          </el-input>
+        </div>
+       <div class="box-mg">
+         <span class="span-box">当前的角色: </span>
+         <el-input class="color-input" :value="userInfo.role_name" disabled>
+         </el-input>
+       </div>
+        <div class="box-mg">
+          <span class="span-box">分配新角色: </span>
+          <el-select v-model="selectedRoleId"  placeholder="请选择">
+            <el-option v-for="item in rolesList" :key="item.id"
+                       :label="item.roleName" :value="item.id"></el-option>
+          </el-select>
+        </div>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="setRoleDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="saveRoleInfo">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -136,7 +165,14 @@
             {required: true, message: "请输入用户手机号", trigger: "blur"},
             {validator: checkMobile, trigger: "blur"}
           ]
-        }
+        },
+        setRoleDialogVisible: false,
+        //需要被分配角色的用户信息
+        userInfo: {},
+        //角色列表数据
+        rolesList: [],
+        //已选中的角色
+        selectedRoleId: ''
       }
     },
     created() {
@@ -264,6 +300,36 @@
         }
         this.$message.success(res.meta.msg);
         this.getUserList();
+      },
+      //展示分配角色的对话框
+      async setRole(userInfo) {
+        this.userInfo = userInfo;
+        // console.log(this.userInfo);
+        //获取角色列表
+        const {data: res} = await this.$http.get('roles');
+
+        if (res.meta.status !== 200) return this.$message.error(res.meta.msg);
+        this.rolesList = res.data;
+        // console.log(this.rolesList);
+        this.setRoleDialogVisible = true;
+      },
+      //点击按钮，分配角色
+      async saveRoleInfo() {
+        if (!this.selectedRoleId) return this.$message.error('请选择要分配的角色');
+        const {data: res} = await this.$http.put(`users/
+        ${this.userInfo.id}/role`, {
+          rid: this.selectedRoleId
+        });
+        console.log(res);
+        if (res.meta.status !== 200) return this.$message.error(res.meta.msg);
+        this.getUserList();
+        this.setRoleDialogVisible = false;
+        this.$message.success(res.meta.msg);
+      },
+      //监听分配角色对话框的关闭事件
+      setRoleDialogClose() {
+        this.selectedRoleId = "";
+        this.userInfo = "";
       }
     }
   }
@@ -277,4 +343,27 @@
   .el-table .success-row {
     background: #f0f9eb;
   }
+  .color-input > {
+    color: #000!important;
+    width: 120px;
+
+  }
+  .span-box {
+    display: block;
+    float: left;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    height: 38px;
+    width: 90px;
+    text-align: center;
+    line-height: 40px;
+    font-family: "Microsoft YaHei", "微软雅黑";
+    font-weight: 800;
+    margin-right: 2px;
+    background-color: #F5F7FA;
+  }
+  .box-mg {
+    margin: 10px 0;
+  }
+
 </style>
