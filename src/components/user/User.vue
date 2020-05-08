@@ -271,7 +271,6 @@
             email: this.editForm.email,
             mobile: this.editForm.mobile
           });
-          console.log(res);
           if(res.meta.status !== 201) {
             this.$message.error(res.meta.msg);
           }
