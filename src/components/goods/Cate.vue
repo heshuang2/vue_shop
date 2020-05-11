@@ -189,7 +189,7 @@
       //获取商品分类数据
       async getCategoriesList() {
         const {data: res} = await this.$http.get('categories', { params: this.querInfo});
-        if (res.meta.status !== 200) return this.$message.error(res.meta.mgs);
+        if (res.meta.status !== 200) return this.$message.error(res.meta.msg);
         this.cateList = res.data.result;
         this.total = res.data.total;
         // console.log(res);
